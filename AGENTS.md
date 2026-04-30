@@ -18,6 +18,7 @@ apps/
   cli/              # Developer CLI package
 packages/          # Shared packages will live here
 docs/              # Product, architecture, and workflow docs
+.repos/            # Third-party source repos for reference only
 ```
 
 Current workspace packages:
@@ -32,6 +33,14 @@ Expected future package boundaries:
   by more than one component.
 - Runtime and launcher code should be added as separate workspace packages or
   apps rather than folded into the CLI.
+
+Third-party source references:
+
+- `.repos/*` contains git submodules for packages the project may use or study.
+- Use these repos to inspect third-party APIs, implementation details, and
+  behavior when planning or implementing integrations.
+- Do not treat `.repos/*` as Destaria workspace code, import from it as local
+  packages, or edit its contents unless explicitly updating submodule pointers.
 
 ## Core Architecture Rules
 
@@ -65,6 +74,10 @@ Root scripts:
 
 - `bun run check:all`: run workspace checks.
 - `bun run fix:all`: run format and lint fixes, then typecheck.
+- `bun run repos:install`: initialize and sync `.repos` submodules to the
+  commits pinned by this repo.
+- `bun run repos:update`: update `.repos` submodules from their configured
+  upstream branches and leave pointer changes to review and commit.
 
 CLI package scripts:
 

@@ -12,6 +12,26 @@
 bun install
 ```
 
+### Install Third-Party Source Repos
+
+This repo uses `.repos/*` for git submodules that expose third-party package
+source for inspection, especially by agents. These repos are references only and
+are not Bun workspace packages.
+
+After cloning the repo, populate the pinned submodule commits:
+
+```bash
+bun run repos:install
+```
+
+To advance the source repos to their configured upstream branches, run:
+
+```bash
+bun run repos:update
+```
+
+Review and commit any resulting submodule pointer changes in this monorepo.
+
 ### Run Checks
 
 Run the full workspace check suite:

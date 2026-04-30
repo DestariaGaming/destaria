@@ -14,7 +14,9 @@
   },
   "scripts": {
     "check:all": "bun run --workspaces --parallel check:all",
-    "fix:all": "bun run --workspaces --parallel fix:all"
+    "fix:all": "bun run --workspaces --parallel fix:all",
+    "repos:install": "git submodule sync --recursive && git submodule update --init --recursive -- .repos",
+    "repos:update": "git submodule sync --recursive && git submodule update --init --recursive --remote --merge -- .repos"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
