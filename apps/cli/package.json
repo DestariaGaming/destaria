@@ -1,0 +1,20 @@
+{
+  "name": "destaria",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "fmt:check": "oxfmt --check .",
+    "fmt:fix": "oxfmt --write .",
+    "lint:check": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
+    "check:all": "bun run typecheck && bun run fmt:check && bun run lint:check",
+    "fix:all": "bun run fmt:fix && bun run lint:fix && bun run typecheck"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "typescript": "catalog:"
+  }
+}

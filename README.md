@@ -1,15 +1,31 @@
 # destaria
 
-To install dependencies:
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) 1.3.13 or later
+
+### Install Dependencies
 
 ```bash
 bun install
 ```
 
-To run:
+### Run Checks
+
+Run the full workspace check suite:
 
 ```bash
-bun run index.ts
+bun run check:all
 ```
 
-This project was created using `bun init` in bun v1.3.13. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+This runs TypeScript, Oxfmt, and Oxlint checks across all workspace packages.
+
+### Apply Automated Fixes
+
+```bash
+bun run fix:all
+```
+
+This applies Oxfmt formatting and safe Oxlint fixes across all workspace packages, then runs type checking.
