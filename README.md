@@ -42,6 +42,26 @@ bun run check:all
 
 This runs TypeScript, Oxfmt, and Oxlint checks across all workspace packages.
 
+### Local Development
+
+Bun can execute the CLI TypeScript entrypoint directly during development:
+
+```bash
+bun /path/to/destaria/apps/cli/src/bin.ts --help
+```
+
+For a shorter local command, add an alias to your shell config:
+
+```bash
+alias destaria='bun /path/to/destaria/apps/cli/src/bin.ts'
+```
+
+After reloading your shell, run the local CLI with:
+
+```bash
+destaria --help
+```
+
 ### Apply Automated Fixes
 
 ```bash
