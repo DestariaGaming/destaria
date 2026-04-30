@@ -16,6 +16,7 @@
   "scripts": {
     "build:all": "bun run --workspaces --parallel build",
     "check:all": "bun run --workspaces --parallel check:all",
+    "check:pr-title": "bun tools/check-pr-title.ts",
     "fix:all": "bun run --workspaces --parallel fix:all",
     "test:all": "bun run --workspaces --parallel test",
     "repos:install": "git submodule sync --recursive && git submodule update --init --recursive -- .repos",
