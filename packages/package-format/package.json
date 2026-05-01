@@ -1,20 +1,22 @@
 {
-  "name": "destaria",
+  "name": "@destaria/package-format",
   "version": "0.0.1",
-  "bin": {
-    "destaria": "./dist/bin.js"
-  },
   "files": [
     "dist"
   ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
+  "types": "./src/index.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts ./src/bin.ts --outdir ./dist --target bun --format esm",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "fmt:check": "oxfmt --check package.json tsconfig.json src",
     "fmt:fix": "oxfmt --write package.json tsconfig.json src",
@@ -25,8 +27,7 @@
     "fix:all": "bun run fmt:fix && bun run lint:fix && bun run typecheck"
   },
   "dependencies": {
-    "@destaria/authoring": "workspace:*",
-    "cli-forge": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

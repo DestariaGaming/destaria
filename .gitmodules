@@ -2,3 +2,7 @@
 	path = .repos/cli-forge
 	url = https://github.com/AgentEnder/cli-forge
 	branch = main
+[submodule ".repos/zod"]
+	path = .repos/zod
+	url = https://github.com/colinhacks/zod
+	branch = main

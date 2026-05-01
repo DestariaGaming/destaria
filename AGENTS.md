@@ -16,27 +16,33 @@ even when implementing small pieces.
 ```txt
 apps/
   cli/              # Developer CLI package
-packages/          # Shared packages will live here
+packages/
+  authoring/        # TypeScript authoring API helpers
+  package-format/   # Serializable .destariapkg contracts
 docs/              # Product, architecture, and workflow docs
 .repos/            # Third-party source repos for reference only
 ```
 
 Current workspace packages:
 
-- `apps/cli`: the Destaria CLI package. It currently exposes the package version
-  from `src/index.ts`.
+- `apps/cli`: the Destaria CLI package and public SDK entrypoint.
+- `packages/authoring`: authoring helpers that produce package-format data.
+- `packages/package-format`: serializable package contracts and validation
+  shared by build and runtime code.
 
 Expected future package boundaries:
 
 - CLI code belongs in `apps/cli`.
-- Shared contracts and types should move into `packages/*` when they are needed
-  by more than one component.
+- Authoring helpers belong in `packages/authoring`.
+- Shared package contracts and validation belong in `packages/package-format`.
 - Runtime and launcher code should be added as separate workspace packages or
   apps rather than folded into the CLI.
 
 Third-party source references:
 
 - `.repos/*` contains git submodules for packages the project may use or study.
+- `.repos/cli-forge` contains the CLI framework source.
+- `.repos/zod` contains the schema validation source used by package-format.
 - Use these repos to inspect third-party APIs, implementation details, and
   behavior when planning or implementing integrations.
 - Do not treat `.repos/*` as Destaria workspace code, import from it as local
@@ -53,6 +59,7 @@ Keep these boundaries intact:
 - Launcher must not build games.
 - CLI should not become the long-term packaged-game runtime.
 - CLI, Runtime, and Launcher communicate through the `.destariapkg` contract.
+- Runtime should depend on package-format contracts, not authoring helpers.
 
 The key model is:
 
@@ -86,6 +93,18 @@ CLI package scripts:
 - `bun run fmt:fix`
 - `bun run lint:check`
 - `bun run lint:fix`
+- `bun run check:all`
+- `bun run fix:all`
+
+Workspace package scripts:
+
+- `bun run build`
+- `bun run typecheck`
+- `bun run fmt:check`
+- `bun run fmt:fix`
+- `bun run lint:check`
+- `bun run lint:fix`
+- `bun run test`
 - `bun run check:all`
 - `bun run fix:all`
 

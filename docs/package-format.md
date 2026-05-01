@@ -32,6 +32,37 @@ games are structured data plus script bundles and binary assets.
 - JavaScript bundles store runtime scripts compiled from TypeScript.
 - Package references should be explicit and resolvable.
 - Runtime loading should validate package data before execution where practical.
+- Zod schemas inside `@destaria/package-format` keep TypeScript package
+  contract types and runtime validation in sync.
+
+## Mesh Descriptors
+
+Primitive meshes are stored as serializable metadata. The first supported
+descriptor is a cube:
+
+```json
+{
+  "kind": "primitive",
+  "primitive": "cube"
+}
+```
+
+An optional positive finite `size` value represents a uniform cube edge length:
+
+```json
+{
+  "kind": "primitive",
+  "primitive": "cube",
+  "size": 2
+}
+```
+
+The descriptor does not contain vertex buffers, renderer objects, materials, or
+WebGPU/WebGL/canvas details. Runtime code is responsible for turning package
+data into renderable geometry later.
+
+The package-format module exports `validateMeshDescriptor(value)`, which parses
+unknown data and returns a typed descriptor or throws a Zod validation error.
 
 ## Component Contract
 
