@@ -18,7 +18,34 @@
         "destaria": "./dist/bin.js",
       },
       "dependencies": {
+        "@destaria/authoring": "workspace:*",
         "cli-forge": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "oxfmt": "catalog:",
+        "oxlint": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/authoring": {
+      "name": "@destaria/authoring",
+      "version": "0.0.1",
+      "dependencies": {
+        "@destaria/package-format": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "oxfmt": "catalog:",
+        "oxlint": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/package-format": {
+      "name": "@destaria/package-format",
+      "version": "0.0.1",
+      "dependencies": {
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -34,9 +61,14 @@
     "oxfmt": "latest",
     "oxlint": "latest",
     "typescript": "^5",
+    "zod": "^4.4.1",
   },
   "packages": {
     "@cli-forge/parser": ["@cli-forge/parser@1.10.0", "", { "dependencies": { "tslib": "^2.3.0" } }, "sha512-4yIDupTz7yftwYTfwaEFS+CLVAHqgHMg+9JGbJZD9EAvducB/k3xTV/cTFfLLtWQ5F0P3Tsg3N2x81jTwjrHzA=="],
+
+    "@destaria/authoring": ["@destaria/authoring@workspace:packages/authoring"],
+
+    "@destaria/package-format": ["@destaria/package-format@workspace:packages/package-format"],
 
     "@oxfmt/binding-android-arm-eabi": ["@oxfmt/binding-android-arm-eabi@0.47.0", "", { "os": "android", "cpu": "arm" }, "sha512-KrMQRdMi/upr81qT4ijK6X6BNp6jqpMY7FwILQnwIy9QLc3qpnhUx5rsCLGzn4ewsCQ0CNAspN2ogmP1GXLyLw=="],
 
@@ -135,5 +167,7 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.19.2", "", {}, "sha512-qYVnV5OEm2AW8cJMCpdV20CDyaN3g0AjDlOGf1OW4iaDEx8MwdtChUp4zu4H0VP3nDRF/8RKWH+IPp9uW0YGZg=="],
+
+    "zod": ["zod@4.4.1", "", {}, "sha512-a6ENMBBGZBsnlSebQ/eKCguSBeGKSf4O7BPnqVPmYGtpBYI7VSqoVqw+QcB7kPRjbqPwhYTpFbVj/RqNz/CT0Q=="],
   }
 }

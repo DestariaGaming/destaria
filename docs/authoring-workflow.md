@@ -25,6 +25,18 @@ Examples:
 
 Meshes may be primitive, procedural, imported, or composed.
 
+The first mesh authoring helper is `Mesh.cube()`, which produces serializable
+package data:
+
+```ts
+import { Mesh } from "destaria";
+
+const mesh = Mesh.cube({ size: 2 });
+```
+
+This creates a descriptor for the CLI to include in compiled asset metadata. It
+does not create runtime geometry or renderer-specific objects.
+
 ## Scenes
 
 Scenes describe world contents.

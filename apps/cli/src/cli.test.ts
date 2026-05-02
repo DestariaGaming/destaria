@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { TestHarness } from "cli-forge";
 
 import { createDestariaCli } from "./cli";
-import { destaria, version } from "./index";
+import { Mesh, destaria, version } from "./index";
 
 describe("destaria sdk exports", () => {
   it("exports the sdk token and version", () => {
@@ -10,6 +10,13 @@ describe("destaria sdk exports", () => {
     expect(destaria).toEqual({
       name: "destaria",
       version: "0.0.1",
+    });
+  });
+
+  it("re-exports the authoring mesh api", () => {
+    expect(Mesh.cube()).toEqual({
+      kind: "primitive",
+      primitive: "cube",
     });
   });
 });

@@ -11,6 +11,12 @@ Destaria is split into three core components:
 Each component has one primary responsibility and communicates through the shared
 package format documented in [package-format.md](package-format.md).
 
+The repo also includes SDK packages used by these components:
+
+- `@destaria/authoring`: TypeScript authoring helpers for source projects.
+- `@destaria/package-format`: serializable data contracts shared by the CLI and
+  runtime.
+
 ## CLI
 
 The CLI is the developer's main interface.
@@ -36,6 +42,8 @@ Architectural decision:
 - The CLI is the only component that understands TypeScript source projects.
 - The CLI translates source layout into the package contract consumed by runtime
   and launcher.
+- The CLI may use authoring helpers to load or validate source declarations, but
+  its output must be package-format data.
 
 ## Runtime
 
@@ -62,6 +70,8 @@ Architectural decision:
 
 - The runtime must not depend on the developer's folder structure, naming
   conventions, or TypeScript project layout.
+- The runtime should depend on `@destaria/package-format`, not
+  `@destaria/authoring`.
 - Runtime APIs should expose controlled capabilities to scripts rather than
   internal engine objects.
 
@@ -101,6 +111,14 @@ These constraints keep ownership clear:
 - CLI does not act as the long-term packaged-game runtime.
 - Launcher does not build games.
 - All assets and scenes must resolve to structured package data.
+
+Package dependency direction should stay pointed at the data contract:
+
+```txt
+@destaria/authoring -> @destaria/package-format
+destaria CLI        -> @destaria/authoring
+runtime             -> @destaria/package-format
+```
 
 When in doubt, keep the dependency direction pointed toward the package contract:
 

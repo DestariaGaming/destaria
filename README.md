@@ -18,6 +18,11 @@ This repo uses `.repos/*` for git submodules that expose third-party package
 source for inspection, especially by agents. These repos are references only and
 are not Bun workspace packages.
 
+Current reference repos:
+
+- `.repos/cli-forge`: CLI framework source.
+- `.repos/zod`: schema validation source used by `@destaria/package-format`.
+
 After cloning the repo, populate the pinned submodule commits:
 
 ```bash
@@ -41,6 +46,24 @@ bun run check:all
 ```
 
 This runs TypeScript, Oxfmt, and Oxlint checks across all workspace packages.
+
+### Workspace Packages
+
+Current workspace packages:
+
+- `apps/cli`: the `destaria` CLI and public SDK entrypoint.
+- `packages/authoring`: TypeScript authoring helpers such as `Mesh.cube()`.
+- `packages/package-format`: serializable `.destariapkg` data contracts and
+  validation shared by build and runtime code.
+
+The intended dependency direction is:
+
+```txt
+destaria CLI -> @destaria/authoring -> @destaria/package-format
+runtime      -> @destaria/package-format
+```
+
+Runtime code should consume package-format data, not authoring helpers.
 
 ### Local Development
 

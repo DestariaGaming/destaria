@@ -11,7 +11,8 @@
     "cli-forge": "^1.10.0",
     "oxfmt": "latest",
     "oxlint": "latest",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zod": "^4.4.1"
   },
   "scripts": {
     "build:all": "bun run --workspaces --parallel build",
