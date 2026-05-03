@@ -9,5 +9,13 @@
     "suspicious": "warn",
     "perf": "warn"
   },
+  "overrides": [
+    {
+      "files": ["packages/authoring/src/asset.ts"],
+      "rules": {
+        "typescript/no-extraneous-class": "off"
+      }
+    }
+  ],
   "ignorePatterns": ["dist/**", "coverage/**", "node_modules/**"]
 }
