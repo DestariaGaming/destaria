@@ -5,5 +5,5 @@ export const destaria = {
   version,
 } as const;
 
-export { Mesh } from "@destaria/authoring";
+export { Asset, Mesh } from "@destaria/authoring";
 export type { CubeMeshOptions } from "@destaria/authoring";

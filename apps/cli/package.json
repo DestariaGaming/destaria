@@ -26,12 +26,14 @@
   },
   "dependencies": {
     "@destaria/authoring": "workspace:*",
+    "@destaria/package-format": "workspace:*",
     "cli-forge": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "catalog:"
   }
 }

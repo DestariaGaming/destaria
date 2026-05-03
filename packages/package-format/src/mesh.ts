@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const CubeMeshDescriptorSchema = z
+export const CubeMeshDescriptorSchema = z
   .object({
     kind: z.literal("primitive"),
     primitive: z.literal("cube"),
@@ -8,9 +8,11 @@ const CubeMeshDescriptorSchema = z
   })
   .strict();
 
-const PrimitiveMeshDescriptorSchema = z.discriminatedUnion("primitive", [CubeMeshDescriptorSchema]);
+export const PrimitiveMeshDescriptorSchema = z.discriminatedUnion("primitive", [
+  CubeMeshDescriptorSchema,
+]);
 
-const MeshDescriptorSchema = PrimitiveMeshDescriptorSchema;
+export const MeshDescriptorSchema = PrimitiveMeshDescriptorSchema;
 
 export type CubeMeshDescriptor = z.infer<typeof CubeMeshDescriptorSchema>;
 export type PrimitiveMeshDescriptor = z.infer<typeof PrimitiveMeshDescriptorSchema>;

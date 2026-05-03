@@ -19,6 +19,7 @@
       },
       "dependencies": {
         "@destaria/authoring": "workspace:*",
+        "@destaria/package-format": "workspace:*",
         "cli-forge": "catalog:",
       },
       "devDependencies": {
@@ -26,6 +27,7 @@
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "typescript": "catalog:",
+        "zod": "catalog:",
       },
     },
     "packages/authoring": {

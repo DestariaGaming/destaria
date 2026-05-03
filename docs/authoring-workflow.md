@@ -29,9 +29,11 @@ The first mesh authoring helper is `Mesh.cube()`, which produces serializable
 package data:
 
 ```ts
-import { Mesh } from "destaria";
+import { Asset, Mesh } from "destaria";
 
-const mesh = Mesh.cube({ size: 2 });
+export class Crate extends Asset {
+  static mesh = Mesh.cube({ size: 2 });
+}
 ```
 
 This creates a descriptor for the CLI to include in compiled asset metadata. It

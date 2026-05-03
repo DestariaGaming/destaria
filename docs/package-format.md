@@ -64,6 +64,36 @@ data into renderable geometry later.
 The package-format module exports `validateMeshDescriptor(value)`, which parses
 unknown data and returns a typed descriptor or throws a Zod validation error.
 
+## Asset Registry
+
+The first build artifact for authored assets is:
+
+```txt
+dist/asset-registry.json
+```
+
+It contains compiled, serializable asset metadata:
+
+```json
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "src/assets/crate.asset.ts:Crate",
+      "mesh": {
+        "kind": "primitive",
+        "primitive": "cube"
+      }
+    }
+  ]
+}
+```
+
+Asset IDs are generated deterministically from the source path and asset class
+identity. Treat them as opaque runtime references once emitted; moving asset
+files or renaming asset classes changes generated IDs. The registry stores
+package-format data only; it does not reference TypeScript source at runtime.
+
 ## Component Contract
 
 The CLI writes `.destariapkg` files.
