@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import path from "node:path";
 
-import { createDestariaCli } from "./cli";
-import { captureConsole, createFixtureProject } from "./test-fixtures";
+import { createDestariaCli } from "../cli";
+import { captureConsole, createFixtureProject } from "../shared/test-fixtures";
 
 describe("destaria build command", () => {
   it("builds a project and reports the output path", async () => {
@@ -31,7 +31,7 @@ describe("destaria build command", () => {
     const result = Bun.spawn({
       cmd: [
         "bun",
-        path.join(import.meta.dir, "bin.ts"),
+        path.join(import.meta.dir, "..", "bin.ts"),
         "build",
         "--project",
         projectRoot,

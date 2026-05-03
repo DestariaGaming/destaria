@@ -11,7 +11,7 @@ export async function createFixtureProject(
   options: FixtureProjectOptions | string = {},
 ): Promise<string> {
   const projectName = typeof options === "string" ? options : (options.projectName ?? "project-a");
-  const repositoryRoot = path.resolve(import.meta.dir, "..", "..", "..");
+  const repositoryRoot = path.resolve(import.meta.dir, "..", "..", "..", "..");
   const projectRoot = path.join(repositoryRoot, "tmp", projectName);
   const destariaShimRoot = path.join(projectRoot, "node_modules", "destaria");
 

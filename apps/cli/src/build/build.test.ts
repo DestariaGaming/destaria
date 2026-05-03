@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { buildProject } from "./build";
-import { createFixtureProject } from "./test-fixtures";
+import { buildProject } from "./index";
+import { createFixtureProject } from "../shared/test-fixtures";
 
 describe("destaria build", () => {
   it("builds one primitive asset into an asset registry", async () => {

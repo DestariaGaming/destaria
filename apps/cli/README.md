@@ -17,6 +17,17 @@ const mesh = Mesh.cube();
 The CLI package depends on `@destaria/authoring`, which in turn depends on
 `@destaria/package-format` for serializable package data contracts.
 
+## Source Layout
+
+```txt
+src/
+  bin.ts             # executable CLI entrypoint
+  cli.ts             # command registration
+  index.ts           # public SDK exports
+  build/             # build command implementation and tests
+  shared/            # CLI test helpers and shared internals
+```
+
 ## Scripts
 
 - `bun run build`
