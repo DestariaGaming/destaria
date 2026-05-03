@@ -1,19 +1,11 @@
-import {
-  DESTARIA_ASSET_CLASS_MARKER,
-  type Asset,
-  type AssetClassMarker,
-} from "@destaria/authoring";
+import type { AssetDefinition, JsonObject, JsonValue } from "@destaria/authoring";
 import { type CompiledAsset, validateMeshDescriptor } from "@destaria/package-format";
 import { z } from "zod";
 
 import { BuildError } from "./errors";
 import { formatProjectPath } from "./paths";
 
-type AssetClass = typeof Asset & {
-  readonly name: string;
-  readonly mesh?: unknown;
-  readonly [DESTARIA_ASSET_CLASS_MARKER]?: AssetClassMarker;
-};
+const DESTARIA_ASSET_DEFINITION_MARKER = "__destariaAssetDefinition";
 
 type LoadedAssetModule = {
   assetFile: string;
@@ -21,7 +13,7 @@ type LoadedAssetModule = {
 };
 
 type AssetDeclaration = {
-  assetClass: AssetClass;
+  assetDefinition: AssetDefinition<JsonObject>;
   assetFile: string;
   exportName: string;
   id: string;
@@ -59,25 +51,19 @@ function collectAssetDeclarations(
 
   for (const { assetFile, moduleExports } of assetModules) {
     for (const [exportName, exportedValue] of Object.entries(moduleExports)) {
-      if (!isAssetClass(exportedValue)) {
+      if (!isAssetDefinition(exportedValue)) {
         continue;
       }
 
       if (exportName === "default") {
         throw new BuildError(
-          `Asset from ${formatProjectPath(projectRoot, assetFile)} must use a named export.`,
+          `Asset definition from ${formatProjectPath(projectRoot, assetFile)} must use a named export.`,
         );
       }
 
-      if (exportedValue.name.length === 0) {
-        throw new BuildError(
-          `Asset export "${exportName}" from ${formatProjectPath(projectRoot, assetFile)} must be a named class.`,
-        );
-      }
-
-      const id = createAssetId(projectRoot, assetFile, exportedValue);
+      const id = createAssetId(projectRoot, assetFile, exportName);
       declarations.push({
-        assetClass: exportedValue,
+        assetDefinition: exportedValue,
         assetFile,
         exportName,
         id,
@@ -90,18 +76,24 @@ function collectAssetDeclarations(
 }
 
 function compileAsset(projectRoot: string, declaration: AssetDeclaration): CompiledAsset {
-  const { assetClass, assetFile, id } = declaration;
+  const { assetDefinition, assetFile, id } = declaration;
 
-  if (assetClass.mesh === undefined) {
+  validateJsonValue(assetDefinition.defaultProps, "defaultProps", projectRoot, assetFile, id);
+
+  let meshDescriptor: unknown;
+  try {
+    meshDescriptor = assetDefinition.mesh(assetDefinition.defaultProps);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
     throw new BuildError(
-      `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} must define a static mesh.`,
+      `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} failed to produce mesh metadata: ${detail}`,
     );
   }
 
   try {
     return {
       id,
-      mesh: validateMeshDescriptor(assetClass.mesh),
+      mesh: validateMeshDescriptor(meshDescriptor),
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -114,13 +106,61 @@ function compileAsset(projectRoot: string, declaration: AssetDeclaration): Compi
   }
 }
 
-function isAssetClass(value: unknown): value is AssetClass {
+function isAssetDefinition(value: unknown): value is AssetDefinition<JsonObject> {
   return (
-    typeof value === "function" &&
-    (value as Partial<AssetClass>)[DESTARIA_ASSET_CLASS_MARKER] === true
+    typeof value === "object" &&
+    value !== null &&
+    (value as Partial<Record<typeof DESTARIA_ASSET_DEFINITION_MARKER, unknown>>)[
+      DESTARIA_ASSET_DEFINITION_MARKER
+    ] === true &&
+    typeof (value as Partial<AssetDefinition<JsonObject>>).mesh === "function"
   );
 }
 
-function createAssetId(projectRoot: string, assetFile: string, assetClass: AssetClass): string {
-  return `${formatProjectPath(projectRoot, assetFile)}:${assetClass.name}`;
+function validateJsonValue(
+  value: unknown,
+  path: string,
+  projectRoot: string,
+  assetFile: string,
+  id: string,
+): asserts value is JsonValue {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean" ||
+    (typeof value === "number" && Number.isFinite(value))
+  ) {
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) =>
+      validateJsonValue(item, `${path}[${index}]`, projectRoot, assetFile, id),
+    );
+    return;
+  }
+
+  if (isPlainJsonObject(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      validateJsonValue(item, `${path}.${key}`, projectRoot, assetFile, id);
+    }
+    return;
+  }
+
+  throw new BuildError(
+    `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} has non-JSON default props at ${path}.`,
+  );
+}
+
+function isPlainJsonObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function createAssetId(projectRoot: string, assetFile: string, exportName: string): string {
+  return `${formatProjectPath(projectRoot, assetFile)}:${exportName}`;
 }

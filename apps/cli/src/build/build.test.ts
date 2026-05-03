@@ -9,11 +9,13 @@ describe("destaria build", () => {
   it("builds one primitive asset into an asset registry", async () => {
     const projectRoot = await createFixtureProject({
       "src/assets/crate.asset.ts": `
-        import { Asset, Mesh } from "destaria";
+        import { defineAsset, Mesh } from "destaria";
 
-        export class Crate extends Asset {
-          static mesh = Mesh.cube();
-        }
+        export const Crate = defineAsset({
+          mesh() {
+            return Mesh.cube();
+          },
+        });
       `,
     });
 
@@ -39,18 +41,22 @@ describe("destaria build", () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/zebra.asset.ts": `
-          import { Asset, Mesh } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export class Zebra extends Asset {
-            static mesh = Mesh.cube();
-          }
+          export const Zebra = defineAsset({
+            mesh() {
+              return Mesh.cube();
+            },
+          });
         `,
         "src/assets/nested/crate.asset.ts": `
-          import { Asset, Mesh } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export class Crate extends Asset {
-            static mesh = Mesh.cube();
-          }
+          export const Crate = defineAsset({
+            mesh() {
+              return Mesh.cube();
+            },
+          });
         `,
       },
       "project-nested-assets",
@@ -75,20 +81,24 @@ describe("destaria build", () => {
     });
   });
 
-  it("reports assets without a mesh", async () => {
+  it("reports default exported asset definitions", async () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/crate.asset.ts": `
-          import { Asset } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export class Crate extends Asset {}
+          export default defineAsset({
+            mesh() {
+              return Mesh.cube();
+            },
+          });
         `,
       },
-      "project-no-mesh",
+      "project-default-asset",
     );
 
     await expect(buildProject({ projectRoot })).rejects.toThrow(
-      'Asset "src/assets/crate.asset.ts:Crate" from src/assets/crate.asset.ts must define a static mesh.',
+      "Asset definition from src/assets/crate.asset.ts must use a named export.",
     );
   });
 
@@ -96,14 +106,16 @@ describe("destaria build", () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/crate.asset.ts": `
-          import { Asset } from "destaria";
+          import { defineAsset } from "destaria";
 
-          export class Crate extends Asset {
-            static mesh = {
-              kind: "primitive",
-              primitive: "sphere",
-            };
-          }
+          export const Crate = defineAsset({
+            mesh() {
+              return {
+                kind: "primitive",
+                primitive: "sphere",
+              };
+            },
+          });
         `,
       },
       "project-invalid-mesh",
@@ -114,62 +126,95 @@ describe("destaria build", () => {
     );
   });
 
-  it("reports duplicate generated asset ids with both exported locations", async () => {
+  it("compiles alias exports as separate asset identities", async () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/crate.asset.ts": `
-          import { Asset, Mesh } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export class Crate extends Asset {
-            static mesh = Mesh.cube();
-          }
+          const CrateDefinition = defineAsset({
+            mesh() {
+              return Mesh.cube();
+            },
+          });
 
-          export { Crate as DuplicateCrate };
+          export { CrateDefinition as Crate, CrateDefinition as DuplicateCrate };
         `,
       },
-      "project-duplicate-id",
+      "project-alias-assets",
     );
 
-    await expect(buildProject({ projectRoot })).rejects.toThrow(
-      'Duplicate asset id "src/assets/crate.asset.ts:Crate" generated from src/assets/crate.asset.ts:Crate and src/assets/crate.asset.ts:DuplicateCrate.',
-    );
+    const result = await buildProject({ projectRoot });
+
+    expect(result.registry.assets.map((asset) => asset.id)).toEqual([
+      "src/assets/crate.asset.ts:Crate",
+      "src/assets/crate.asset.ts:DuplicateCrate",
+    ]);
   });
 
-  it("rejects default exported asset classes", async () => {
+  it("uses default props for the temporary discovered asset build proof", async () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/crate.asset.ts": `
-          import { Asset, Mesh } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export default class Crate extends Asset {
-            static mesh = Mesh.cube();
-          }
+          type CrateProps = {
+            size: "small" | "large";
+            isExplosive: boolean;
+          };
+
+          export const Crate = defineAsset<CrateProps>({
+            defaultProps: {
+              size: "large",
+              isExplosive: false,
+            },
+            mesh(props) {
+              return props.size === "large" ? Mesh.cube({ size: 4 }) : Mesh.cube({ size: 2 });
+            },
+          });
         `,
       },
-      "project-default-asset",
+      "project-prop-asset",
     );
 
-    await expect(buildProject({ projectRoot })).rejects.toThrow(
-      "Asset from src/assets/crate.asset.ts must use a named export.",
-    );
+    await expect(buildProject({ projectRoot })).resolves.toMatchObject({
+      registry: {
+        assets: [
+          {
+            id: "src/assets/crate.asset.ts:Crate",
+            mesh: {
+              kind: "primitive",
+              primitive: "cube",
+              size: 4,
+            },
+          },
+        ],
+      },
+    });
   });
 
-  it("detects asset classes by marker rather than package instance", async () => {
+  it("detects asset definitions by marker rather than package instance", async () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/crate.asset.ts": `
-          import { Asset, Mesh } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export class Crate extends Asset {
-            static mesh = Mesh.cube();
-          }
+          export const Crate = defineAsset({
+            mesh() {
+              return Mesh.cube();
+            },
+          });
         `,
       },
       {
-        projectName: "project-marker-copy",
+        projectName: "project-definition-marker-copy",
         destariaShim: `
-          export class Asset {
-            static __destariaAssetClass = true;
+          export function defineAsset(options) {
+            return {
+              __destariaAssetDefinition: true,
+              defaultProps: options.defaultProps ?? {},
+              mesh: options.mesh,
+            };
           }
 
           export const Mesh = {
@@ -190,6 +235,50 @@ describe("destaria build", () => {
         ],
       },
     });
+  });
+
+  it("reports non-json default props", async () => {
+    const projectRoot = await createFixtureProject(
+      {
+        "src/assets/crate.asset.ts": `
+          export const Crate = {
+            __destariaAssetDefinition: true,
+            defaultProps: {
+              size: Number.NaN,
+            },
+            mesh() {
+              return { kind: "primitive", primitive: "cube" };
+            },
+          };
+        `,
+      },
+      "project-non-json-default-props",
+    );
+
+    await expect(buildProject({ projectRoot })).rejects.toThrow(
+      'Asset "src/assets/crate.asset.ts:Crate" from src/assets/crate.asset.ts has non-JSON default props at defaultProps.size.',
+    );
+  });
+
+  it("reports mesh callback failures", async () => {
+    const projectRoot = await createFixtureProject(
+      {
+        "src/assets/crate.asset.ts": `
+          import { defineAsset } from "destaria";
+
+          export const Crate = defineAsset({
+            mesh() {
+              throw new Error("boom");
+            },
+          });
+        `,
+      },
+      "project-mesh-callback-failure",
+    );
+
+    await expect(buildProject({ projectRoot })).rejects.toThrow(
+      'Asset "src/assets/crate.asset.ts:Crate" from src/assets/crate.asset.ts failed to produce mesh metadata: boom',
+    );
   });
 
   it("rejects absolute output paths", async () => {

@@ -9,11 +9,13 @@ describe("destaria build command", () => {
     const projectRoot = await createFixtureProject(
       {
         "src/assets/crate.asset.ts": `
-          import { Asset, Mesh } from "destaria";
+          import { defineAsset, Mesh } from "destaria";
 
-          export class Crate extends Asset {
-            static mesh = Mesh.cube();
-          }
+          export const Crate = defineAsset({
+            mesh() {
+              return Mesh.cube();
+            },
+          });
         `,
       },
       "command-project",
