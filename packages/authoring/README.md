@@ -6,6 +6,31 @@ This package provides ergonomic helpers that produce serializable package data.
 It depends on `@destaria/package-format` for the underlying data contract and
 validation.
 
+## Asset API
+
+```ts
+import { defineAsset, Mesh } from "@destaria/authoring";
+
+type CrateProps = {
+  size: "small" | "large";
+  isExplosive: boolean;
+};
+
+const Crate = defineAsset<CrateProps>({
+  defaultProps: {
+    size: "small",
+    isExplosive: false,
+  },
+  mesh(props) {
+    return props.size === "large" ? Mesh.cube({ size: 4 }) : Mesh.cube({ size: 2 });
+  },
+});
+```
+
+`defineAsset()` returns a typed asset definition for the CLI to discover and
+compile. Props are JSON-safe runtime data. For assets without props,
+`defineAsset({ mesh })` defaults props to `{}`.
+
 ## Mesh API
 
 ```ts

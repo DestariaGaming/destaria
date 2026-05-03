@@ -29,15 +29,43 @@ The first mesh authoring helper is `Mesh.cube()`, which produces serializable
 package data:
 
 ```ts
-import { Asset, Mesh } from "destaria";
+import { defineAsset, Mesh } from "destaria";
 
-export class Crate extends Asset {
-  static mesh = Mesh.cube({ size: 2 });
-}
+export const Crate = defineAsset({
+  mesh() {
+    return Mesh.cube({ size: 2 });
+  },
+});
 ```
 
 This creates a descriptor for the CLI to include in compiled asset metadata. It
 does not create runtime geometry or renderer-specific objects.
+
+Assets that need authored configuration use typed JSON-safe props:
+
+```ts
+import { defineAsset, Mesh } from "destaria";
+
+type CrateProps = {
+  size: "small" | "large";
+  isExplosive: boolean;
+};
+
+export const Crate = defineAsset<CrateProps>({
+  defaultProps: {
+    size: "small",
+    isExplosive: false,
+  },
+  mesh(props) {
+    return props.size === "large" ? Mesh.cube({ size: 4 }) : Mesh.cube({ size: 2 });
+  },
+});
+```
+
+`mesh(props)` can produce different package data for different effective entity
+props. Default props are fallback authoring data, not a request to compile every
+possible asset variant. Once scene/entity compilation is in place, the CLI
+should compile asset outputs for referenced entity variants.
 
 ## Scenes
 

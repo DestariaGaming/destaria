@@ -114,6 +114,9 @@ Workspace package scripts:
 - Keep implementation scoped to the package that owns the responsibility.
 - Prefer explicit structured data contracts over ad hoc string formats.
 - Add shared abstractions only after more than one package needs them.
+- Add clear TS/JSDoc comments for public-facing API exports, including exported
+  functions, classes, constants, and types that developers consume from package
+  entrypoints.
 - Keep docs updated when changing component boundaries, package format, or
   workflow assumptions.
 

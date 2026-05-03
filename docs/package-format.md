@@ -89,10 +89,16 @@ It contains compiled, serializable asset metadata:
 }
 ```
 
-Asset IDs are generated deterministically from the source path and asset class
-identity. Treat them as opaque runtime references once emitted; moving asset
-files or renaming asset classes changes generated IDs. The registry stores
+Asset IDs are generated deterministically from the source path and named asset
+export. Treat them as opaque runtime references once emitted; moving asset files
+or renaming asset exports changes generated IDs. The registry stores
 package-format data only; it does not reference TypeScript source at runtime.
+
+For prop-based authored assets, `mesh(props)` may produce different package data
+for different entity placements. The current default-props asset registry output
+is an early build proof; the compiler should eventually emit package-ready
+asset metadata for referenced scene/entity variants rather than every discovered
+source asset definition or every possible prop branch.
 
 ## Component Contract
 
