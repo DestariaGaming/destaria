@@ -13,10 +13,15 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./compiler": {
+      "types": "./src/compiler.ts",
+      "import": "./src/compiler.ts",
+      "default": "./src/compiler.ts"
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --format esm",
+    "build": "bun build ./src/index.ts ./src/compiler.ts --outdir ./dist --target bun --format esm",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "fmt:check": "oxfmt --check package.json tsconfig.json src",
     "fmt:fix": "oxfmt --write package.json tsconfig.json src",

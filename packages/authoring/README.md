@@ -31,6 +31,43 @@ const Crate = defineAsset<CrateProps>({
 compile. Props are JSON-safe runtime data. For assets without props,
 `defineAsset({ mesh })` defaults props to `{}`.
 
+## Entity API
+
+```ts
+import { appendDefault, defineAsset, entity, Mesh } from "@destaria/authoring";
+
+type CrateProps = {
+  size: "small" | "large";
+  isExplosive: boolean;
+  tags: string[];
+};
+
+const Crate = defineAsset<CrateProps>({
+  defaultProps: {
+    size: "small",
+    isExplosive: false,
+    tags: ["crate"],
+  },
+  mesh(props) {
+    return props.size === "large" ? Mesh.cube({ size: 4 }) : Mesh.cube({ size: 2 });
+  },
+});
+
+const cratePlacement = entity(Crate)
+  .with({
+    size: "large",
+    isExplosive: true,
+    tags: appendDefault(["explosive"]),
+  })
+  .at(0, 0, 0)
+  .toDescriptor();
+```
+
+`entity(asset)` creates an authoring-side placement builder. Its descriptor
+preserves the asset definition token, effective JSON-safe props, and position
+transform for later CLI scene compilation. It does not resolve asset IDs,
+serialize package data, or create runtime entity objects.
+
 ## Mesh API
 
 ```ts

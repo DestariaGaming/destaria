@@ -35,6 +35,16 @@ games are structured data plus script bundles and binary assets.
 - Zod schemas inside `@destaria/package-format` keep TypeScript package
   contract types and runtime validation in sync.
 
+## JSON Values
+
+Small structured package metadata uses JSON-safe values. The
+`@destaria/package-format` module exports `JsonValue` types and
+`validateJsonValue(value)` helpers backed by Zod's JSON schema support.
+
+JSON-safe package values exclude data that cannot be preserved in package
+metadata, including `undefined`, `NaN`, `Infinity`, functions, symbols, `Date`,
+and class instances.
+
 ## Mesh Descriptors
 
 Primitive meshes are stored as serializable metadata. The first supported

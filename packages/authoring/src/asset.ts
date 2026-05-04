@@ -1,27 +1,9 @@
-import type { MeshDescriptor } from "@destaria/package-format";
+import type { JsonObject, MeshDescriptor } from "@destaria/package-format";
+import { validateJsonValue } from "@destaria/package-format";
 
 const DESTARIA_ASSET_DEFINITION_MARKER = "__destariaAssetDefinition";
 
-/**
- * A JSON scalar value that can be preserved into authored package data.
- */
-export type JsonPrimitive = string | number | boolean | null;
-
-/**
- * JSON-safe object props for asset definitions.
- *
- * Asset props are authored in TypeScript, compiled by the CLI, and may be
- * preserved for runtime usage. Functions, class instances, symbols, undefined,
- * NaN, and Infinity are intentionally excluded.
- */
-export type JsonObject = { readonly [key: string]: JsonValue };
-
 type EmptyJsonObject = Record<never, never>;
-
-/**
- * Any JSON-safe value that can cross the authoring-to-runtime boundary.
- */
-export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 
 type DefineAssetOptions<TProps extends JsonObject> = keyof TProps extends never
   ? {
@@ -101,36 +83,19 @@ export function defineAsset<TProps extends JsonObject = EmptyJsonObject>(
   });
 }
 
-function validateJsonValue(value: unknown, path: string): asserts value is JsonValue {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "boolean" ||
-    (typeof value === "number" && Number.isFinite(value))
-  ) {
-    return;
-  }
-
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => validateJsonValue(item, `${path}[${index}]`));
-    return;
-  }
-
-  if (isPlainJsonObject(value)) {
-    for (const [key, item] of Object.entries(value)) {
-      validateJsonValue(item, `${path}.${key}`);
-    }
-    return;
-  }
-
-  throw new TypeError(`${path} must be JSON-safe.`);
-}
-
-function isPlainJsonObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
+/**
+ * Returns whether a value is an authored asset definition token.
+ *
+ * The guard checks the marker shape instead of package instance identity so the
+ * CLI can recognize definitions loaded through project-local SDK shims.
+ */
+export function isAssetDefinition(value: unknown): value is AssetDefinition<JsonObject> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    (value as Partial<Record<typeof DESTARIA_ASSET_DEFINITION_MARKER, unknown>>)[
+      DESTARIA_ASSET_DEFINITION_MARKER
+    ] === true &&
+    typeof (value as Partial<AssetDefinition<JsonObject>>).mesh === "function"
+  );
 }

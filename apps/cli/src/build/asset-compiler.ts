@@ -1,11 +1,15 @@
-import type { AssetDefinition, JsonObject, JsonValue } from "@destaria/authoring";
-import { type CompiledAsset, validateMeshDescriptor } from "@destaria/package-format";
+import type { AssetDefinition } from "@destaria/authoring";
+import { isAssetDefinition } from "@destaria/authoring/compiler";
+import type { JsonObject } from "@destaria/package-format";
+import {
+  type CompiledAsset,
+  validateJsonValue,
+  validateMeshDescriptor,
+} from "@destaria/package-format";
 import { z } from "zod";
 
 import { BuildError } from "./errors";
 import { formatProjectPath } from "./paths";
-
-const DESTARIA_ASSET_DEFINITION_MARKER = "__destariaAssetDefinition";
 
 type LoadedAssetModule = {
   assetFile: string;
@@ -78,7 +82,18 @@ function collectAssetDeclarations(
 function compileAsset(projectRoot: string, declaration: AssetDeclaration): CompiledAsset {
   const { assetDefinition, assetFile, id } = declaration;
 
-  validateJsonValue(assetDefinition.defaultProps, "defaultProps", projectRoot, assetFile, id);
+  try {
+    validateJsonValue(assetDefinition.defaultProps, "defaultProps");
+  } catch (error) {
+    if (error instanceof TypeError) {
+      const invalidPath = error.message.replace(/ must be JSON-safe\.$/, "");
+      throw new BuildError(
+        `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} has non-JSON default props at ${invalidPath}.`,
+      );
+    }
+
+    throw error;
+  }
 
   let meshDescriptor: unknown;
   try {
@@ -104,61 +119,6 @@ function compileAsset(projectRoot: string, declaration: AssetDeclaration): Compi
 
     throw error;
   }
-}
-
-function isAssetDefinition(value: unknown): value is AssetDefinition<JsonObject> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    (value as Partial<Record<typeof DESTARIA_ASSET_DEFINITION_MARKER, unknown>>)[
-      DESTARIA_ASSET_DEFINITION_MARKER
-    ] === true &&
-    typeof (value as Partial<AssetDefinition<JsonObject>>).mesh === "function"
-  );
-}
-
-function validateJsonValue(
-  value: unknown,
-  path: string,
-  projectRoot: string,
-  assetFile: string,
-  id: string,
-): asserts value is JsonValue {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "boolean" ||
-    (typeof value === "number" && Number.isFinite(value))
-  ) {
-    return;
-  }
-
-  if (Array.isArray(value)) {
-    value.forEach((item, index) =>
-      validateJsonValue(item, `${path}[${index}]`, projectRoot, assetFile, id),
-    );
-    return;
-  }
-
-  if (isPlainJsonObject(value)) {
-    for (const [key, item] of Object.entries(value)) {
-      validateJsonValue(item, `${path}.${key}`, projectRoot, assetFile, id);
-    }
-    return;
-  }
-
-  throw new BuildError(
-    `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} has non-JSON default props at ${path}.`,
-  );
-}
-
-function isPlainJsonObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
 }
 
 function createAssetId(projectRoot: string, assetFile: string, exportName: string): string {

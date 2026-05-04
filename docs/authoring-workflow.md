@@ -92,6 +92,44 @@ Entities can have:
 - attached scripts
 - references to assets or other entities
 
+The first entity authoring helper is `entity(asset)`, which creates an
+authoring-side placement descriptor:
+
+```ts
+import { appendDefault, defineAsset, entity, Mesh } from "destaria";
+
+type CrateProps = {
+  size: "small" | "large";
+  isExplosive: boolean;
+  tags: string[];
+};
+
+export const Crate = defineAsset<CrateProps>({
+  defaultProps: {
+    size: "small",
+    isExplosive: false,
+    tags: ["crate"],
+  },
+  mesh(props) {
+    return props.size === "large" ? Mesh.cube({ size: 4 }) : Mesh.cube({ size: 2 });
+  },
+});
+
+const cratePlacement = entity(Crate)
+  .with({
+    size: "large",
+    isExplosive: true,
+    tags: appendDefault(["explosive"]),
+  })
+  .at(0, 0, 0)
+  .toDescriptor();
+```
+
+Entity descriptors preserve the referenced asset definition token, effective
+JSON-safe props, and position transform. They are source-side snapshots for the
+CLI to resolve during scene compilation; they do not contain package asset IDs
+and do not create runtime entity objects.
+
 ## Scripts
 
 Scripts define runtime behavior.
