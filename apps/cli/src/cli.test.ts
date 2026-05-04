@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { TestHarness } from "cli-forge";
 
 import { createDestariaCli } from "./cli";
-import { defineAsset, Mesh, destaria, version } from "./index";
+import { defineAsset, entity, Mesh, destaria, version } from "./index";
 
 describe("destaria sdk exports", () => {
   it("exports the sdk token and version", () => {
@@ -31,6 +31,22 @@ describe("destaria sdk exports", () => {
     expect(Mesh.cube()).toEqual({
       kind: "primitive",
       primitive: "cube",
+    });
+  });
+
+  it("re-exports the authoring entity api", () => {
+    const Crate = defineAsset({
+      mesh() {
+        return Mesh.cube();
+      },
+    });
+
+    expect(entity(Crate).toDescriptor()).toEqual({
+      assetDefinition: Crate,
+      props: {},
+      transform: {
+        position: { x: 0, y: 0, z: 0 },
+      },
     });
   });
 });

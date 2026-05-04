@@ -63,5 +63,5 @@ function createDefaultDestariaShim(repositoryRoot: string, destariaShimRoot: str
     .split(path.sep)
     .join(path.posix.sep);
 
-  return `export { defineAsset, Mesh } from "${authoringImportPath}";`;
+  return `export { appendDefault, defineAsset, entity, Mesh } from "${authoringImportPath}";`;
 }

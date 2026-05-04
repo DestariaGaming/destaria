@@ -5,11 +5,5 @@ export const destaria = {
   version,
 } as const;
 
-export { defineAsset, Mesh } from "@destaria/authoring";
-export type {
-  AssetDefinition,
-  CubeMeshOptions,
-  JsonObject,
-  JsonPrimitive,
-  JsonValue,
-} from "@destaria/authoring";
+export { appendDefault, defineAsset, entity, Mesh } from "@destaria/authoring";
+export type { AssetDefinition, CubeMeshOptions, EntityDescriptor } from "@destaria/authoring";
