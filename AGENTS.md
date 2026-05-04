@@ -139,3 +139,10 @@ For repo-wide changes, use:
 ```sh
 bun run check:all
 ```
+
+## Pull Requests
+
+When creating GitHub pull requests, follow the template in
+[.github/pull_request_template.md](.github/pull_request_template.md). Preserve
+the template section headings and fill them with the relevant behavior changes,
+linked issues, verification notes, and any additional context.
