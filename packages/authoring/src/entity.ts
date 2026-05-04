@@ -45,7 +45,7 @@ export type EntityDescriptor<TProps extends JsonObject = JsonObject> = {
   readonly transform: EntityTransform;
 };
 
-type EntityBuilderApi<TProps extends JsonObject> = {
+export type EntityBuilderApi<TProps extends JsonObject> = {
   /**
    * Merges typed prop overrides into the entity's effective props.
    *

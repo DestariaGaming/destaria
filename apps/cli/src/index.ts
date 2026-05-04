@@ -5,5 +5,6 @@ export const destaria = {
   version,
 } as const;
 
-export { appendDefault, defineAsset, entity, Mesh } from "@destaria/authoring";
+export { appendDefault, defineAsset, defineScene, entity, Mesh } from "@destaria/authoring";
 export type { AssetDefinition, CubeMeshOptions, EntityDescriptor } from "@destaria/authoring";
+export type { SceneDefinition, SceneDescriptor, SceneEntityEntry } from "@destaria/authoring";

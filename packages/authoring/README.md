@@ -68,6 +68,27 @@ preserves the asset definition token, effective JSON-safe props, and position
 transform for later CLI scene compilation. It does not resolve asset IDs,
 serialize package data, or create runtime entity objects.
 
+## Scene API
+
+```ts
+import { defineAsset, defineScene, entity, Mesh } from "@destaria/authoring";
+
+const Crate = defineAsset({
+  mesh() {
+    return Mesh.cube();
+  },
+});
+
+export const MainScene = defineScene({
+  entities: [entity(Crate).at(0, 0, 0)],
+});
+```
+
+`defineScene()` creates an authoring-side scene container. Scene definitions
+store entity builders and snapshot them with `toDescriptor()` for later CLI
+scene compilation. They do not resolve asset IDs, call asset
+`mesh(props)`, serialize package data, or create runtime scene objects.
+
 ## Mesh API
 
 ```ts
