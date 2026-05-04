@@ -81,6 +81,27 @@ Examples:
 Scenes should compile into structured data that the runtime can load without
 inspecting the original TypeScript source.
 
+The scene authoring helper is `defineScene(...)`, which creates a source-side
+container for entity placements:
+
+```ts
+import { defineAsset, defineScene, entity, Mesh } from "destaria";
+
+const Crate = defineAsset({
+  mesh() {
+    return Mesh.cube();
+  },
+});
+
+export const MainScene = defineScene({
+  entities: [entity(Crate).at(0, 0, 0)],
+});
+```
+
+Scene definitions snapshot entity builders with `toDescriptor()` for later CLI
+compilation. They do not resolve asset IDs, evaluate asset meshes,
+serialize package data, or create runtime scene objects.
+
 ## Entities
 
 An entity is an instance of an asset placed in a scene.
