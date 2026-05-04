@@ -222,6 +222,13 @@ describe("destaria build", () => {
               return { kind: "primitive", primitive: "cube" };
             },
           };
+
+          export function defineConfig(config) {
+            return {
+              ...config,
+              __destariaConfigDefinition: true,
+            };
+          }
         `,
       },
     );
