@@ -20,8 +20,9 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: gh pr view "$PR_NUMBER" --json title --jq .title > "$RUNNER_TEMP/pr-title.txt"
+        run: gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json title --jq .title > "$RUNNER_TEMP/pr-title.txt"
 
       - name: Validate PR title
         if: github.event_name == 'pull_request'
