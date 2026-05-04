@@ -12,6 +12,27 @@ Developers define:
 - entities: instances placed in scenes
 - scripts: runtime behavior
 
+## Project Config
+
+Destaria projects define their CLI entrypoint and output settings in
+`destaria.config.ts` at the project root:
+
+```ts
+import { defineConfig } from "destaria";
+
+export default defineConfig({
+  entry: "src/scenes/main.scene.ts",
+  output: {
+    dir: "dist",
+  },
+});
+```
+
+The CLI loads this config once per command invocation and exposes the effective
+project context to build, dev, and package internals. Command-line overrides,
+such as `--project` and `--output`, are merged into that context before
+downstream work reads it.
+
 ## Assets
 
 Assets are reusable definitions of game objects and resources.

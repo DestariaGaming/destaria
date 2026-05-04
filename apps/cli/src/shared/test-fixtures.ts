@@ -2,6 +2,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 type FixtureProjectOptions = {
+  config?: false | string;
   destariaShim?: string;
   projectName?: string;
 };
@@ -25,6 +26,14 @@ export async function createFixtureProject(
     path.join(destariaShimRoot, "index.ts"),
     `${(typeof options === "string" ? undefined : options.destariaShim) ?? createDefaultDestariaShim(repositoryRoot, destariaShimRoot)}\n`,
   );
+
+  const config = typeof options === "string" ? undefined : options.config;
+  if (config !== false) {
+    await writeFile(
+      path.join(projectRoot, "destaria.config.ts"),
+      `${config ?? createDefaultDestariaConfig()}\n`,
+    );
+  }
 
   await Promise.all(
     Object.entries(files).map(async ([filePath, contents]) => {
@@ -56,6 +65,17 @@ export function captureConsole(method: "error" | "log", fn: () => Promise<void>)
     });
 }
 
+function createDefaultDestariaConfig(): string {
+  return `import { defineConfig } from "destaria";
+
+export default defineConfig({
+  entry: "src/scenes/main.scene.ts",
+  output: {
+    dir: "dist",
+  },
+});`;
+}
+
 function createDefaultDestariaShim(repositoryRoot: string, destariaShimRoot: string): string {
   const authoringEntrypoint = path.join(repositoryRoot, "packages", "authoring", "src", "index.ts");
   const authoringImportPath = path
@@ -63,5 +83,12 @@ function createDefaultDestariaShim(repositoryRoot: string, destariaShimRoot: str
     .split(path.sep)
     .join(path.posix.sep);
 
-  return `export { appendDefault, defineAsset, entity, Mesh } from "${authoringImportPath}";`;
+  return `export { appendDefault, defineAsset, defineScene, entity, Mesh } from "${authoringImportPath}";
+
+export function defineConfig(config) {
+  return {
+    ...config,
+    __destariaConfigDefinition: true,
+  };
+}`;
 }

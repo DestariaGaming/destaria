@@ -7,7 +7,7 @@ import { compileAssetModules } from "./asset-compiler";
 import { discoverAssetFiles } from "./asset-discovery";
 import { loadAssetModules } from "./asset-loader";
 export { BuildError } from "./errors";
-import { resolveOutputFile, resolveProjectRoot } from "./paths";
+import { getProjectContext, loadProjectContext, type ProjectContext } from "../project-context";
 
 export type BuildProjectOptions = {
   projectRoot?: string;
@@ -21,8 +21,9 @@ export type BuildProjectResult = {
 };
 
 export async function buildProject(options: BuildProjectOptions = {}): Promise<BuildProjectResult> {
-  const projectRoot = resolveProjectRoot(options.projectRoot);
-  const outputFile = resolveOutputFile(projectRoot, options.outputFile);
+  const projectContext = await resolveBuildProjectContext(options);
+  const projectRoot = projectContext.projectRoot;
+  const outputFile = projectContext.assetRegistryOutputFile;
   const assetFiles = await discoverAssetFiles(projectRoot);
   const assetModules = await loadAssetModules(projectRoot, assetFiles);
   const assets = compileAssetModules(projectRoot, assetModules);
@@ -39,3 +40,14 @@ export async function buildProject(options: BuildProjectOptions = {}): Promise<B
 }
 
 export { discoverAssetFiles };
+
+async function resolveBuildProjectContext(options: BuildProjectOptions): Promise<ProjectContext> {
+  if (options.projectRoot !== undefined || options.outputFile !== undefined) {
+    return await loadProjectContext({
+      projectRoot: options.projectRoot,
+      outputFile: options.outputFile,
+    });
+  }
+
+  return await getProjectContext();
+}

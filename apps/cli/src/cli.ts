@@ -1,11 +1,28 @@
 import { cli } from "cli-forge";
 
 import { buildProject, BuildError } from "./build";
+import { loadProjectContext } from "./project-context";
 
 export function createDestariaCli() {
   return cli("destaria", {
     description: "Destaria developer CLI",
   })
+    .option("project", {
+      type: "string",
+      description: "Project root",
+      default: ".",
+    })
+    .option("output", {
+      type: "string",
+      description: "Asset registry output path, relative to the project root",
+    })
+    .provide("projectContext", {
+      factory: (args) =>
+        loadProjectContext({
+          projectRoot: args.project,
+          outputFile: args.output,
+        }),
+    })
     .command("create", {
       description: "Create a Destaria project",
       handler: () => {
@@ -20,24 +37,9 @@ export function createDestariaCli() {
     })
     .command("build", {
       description: "Build a Destaria project",
-      builder: (args) =>
-        args
-          .option("project", {
-            type: "string",
-            description: "Project root to build",
-            default: ".",
-          })
-          .option("output", {
-            type: "string",
-            description: "Asset registry output path, relative to the project root",
-            default: "dist/asset-registry.json",
-          }),
-      handler: async (args) => {
+      handler: async () => {
         try {
-          const result = await buildProject({
-            projectRoot: args.project,
-            outputFile: args.output,
-          });
+          const result = await buildProject();
 
           console.log(`Wrote ${result.outputFile}`);
         } catch (error) {
