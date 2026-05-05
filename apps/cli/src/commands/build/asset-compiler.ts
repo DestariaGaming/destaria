@@ -8,8 +8,8 @@ import {
 } from "@destaria/package-format";
 import { z } from "zod";
 
-import { BuildError } from "./errors";
-import { formatProjectPath } from "./paths";
+import { BuildError } from "../../shared/errors";
+import { formatProjectPath } from "../../shared/paths";
 
 type LoadedAssetModule = {
   assetFile: string;

@@ -3,11 +3,13 @@ import { pathToFileURL } from "node:url";
 
 import { getCommandContext } from "cli-forge/context";
 
-import { type DestariaConfigDefinition, isDestariaConfigDefinition } from "./config";
-import { BuildError } from "./build/errors";
-import { resolveProjectRoot } from "./build/paths";
+import { type DestariaConfigDefinition, isDestariaConfigDefinition } from "../config";
+import { BuildError } from "../shared/errors";
+import { isFile } from "../shared/fs";
+import { formatProjectPath, resolveProjectRelativePath, resolveProjectRoot } from "../shared/paths";
 
 export const DESTARIA_CONFIG_FILE_NAME = "destaria.config.ts";
+const DEFAULT_SOURCE_ROOT = "src";
 
 export type ProjectContextOptions = {
   projectRoot?: string;
@@ -18,6 +20,7 @@ export type ProjectContext = {
   projectRoot: string;
   configFile: string;
   config: DestariaConfigDefinition;
+  sourceRoot: string;
   entryScene: string;
   outputDir: string;
   assetRegistryOutputFile: string;
@@ -37,14 +40,26 @@ export async function loadProjectContext(
   const projectRoot = resolveProjectRoot(options.projectRoot);
   const configFile = path.join(projectRoot, DESTARIA_CONFIG_FILE_NAME);
 
-  if (!(await Bun.file(configFile).exists())) {
+  if (!(await isFile(configFile))) {
     throw new BuildError(`Missing Destaria config file: ${DESTARIA_CONFIG_FILE_NAME}`);
   }
 
   const config = await importConfigModule(projectRoot, configFile);
   validateConfigShape(config);
 
-  const entryScene = resolveProjectRelativePath(projectRoot, config.entry, "Config entry");
+  const sourceRoot = resolveProjectRelativePath(
+    projectRoot,
+    config.source?.root ?? DEFAULT_SOURCE_ROOT,
+    "Config source.root",
+    "project root",
+    { allowRoot: true },
+  );
+  const entryScene = resolveProjectRelativePath(
+    sourceRoot,
+    config.entry,
+    "Config entry",
+    "source root",
+  );
   const outputDir = resolveProjectRelativePath(projectRoot, config.output.dir, "Config output.dir");
   const assetRegistryOutputFile =
     options.outputFile === undefined
@@ -55,6 +70,7 @@ export async function loadProjectContext(
     projectRoot,
     configFile,
     config,
+    sourceRoot,
     entryScene,
     outputDir,
     assetRegistryOutputFile,
@@ -89,6 +105,20 @@ function validateConfigShape(config: DestariaConfigDefinition): void {
     throw new BuildError("Config entry must be a string.");
   }
 
+  if (!config.entry.endsWith(".scene.ts")) {
+    throw new BuildError("Config entry must reference a .scene.ts file.");
+  }
+
+  if (config.source !== undefined) {
+    if (config.source === null || typeof config.source !== "object") {
+      throw new BuildError("Config source must be an object.");
+    }
+
+    if (config.source.root !== undefined && typeof config.source.root !== "string") {
+      throw new BuildError("Config source.root must be a string.");
+    }
+  }
+
   if (config.output === null || typeof config.output !== "object") {
     throw new BuildError("Config output must be an object.");
   }
@@ -96,23 +126,4 @@ function validateConfigShape(config: DestariaConfigDefinition): void {
   if (typeof config.output.dir !== "string") {
     throw new BuildError("Config output.dir must be a string.");
   }
-}
-
-function resolveProjectRelativePath(projectRoot: string, value: string, label: string): string {
-  if (path.isAbsolute(value)) {
-    throw new BuildError(`${label} must be relative to the project root.`);
-  }
-
-  const resolvedPath = path.resolve(projectRoot, value);
-  const relativePath = path.relative(projectRoot, resolvedPath);
-
-  if (relativePath === "" || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-    throw new BuildError(`${label} must stay inside the project root.`);
-  }
-
-  return resolvedPath;
-}
-
-function formatProjectPath(projectRoot: string, filePath: string): string {
-  return path.relative(projectRoot, filePath).split(path.sep).join(path.posix.sep);
 }

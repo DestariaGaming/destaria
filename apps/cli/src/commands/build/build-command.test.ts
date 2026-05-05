@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import path from "node:path";
 
-import { createDestariaCli } from "../cli";
-import { captureConsole, createFixtureProject } from "../shared/test-fixtures";
+import { createFixtureProject } from "../../shared/test/fixtures";
 
 describe("destaria build command", () => {
   it("builds a project and reports the output path", async () => {
@@ -21,10 +20,20 @@ describe("destaria build command", () => {
       "command-project",
     );
 
-    const output = await captureConsole("log", async () => {
-      await createDestariaCli().forge(["build", "--project", projectRoot]);
+    const result = Bun.spawn({
+      cmd: [
+        "bun",
+        path.join(import.meta.dir, "..", "..", "bin.ts"),
+        "build",
+        "--project",
+        projectRoot,
+      ],
+      stdout: "pipe",
+      stderr: "pipe",
     });
+    const output = await new Response(result.stdout).text();
 
+    expect(await result.exited).toBe(0);
     expect(output).toContain(`${projectRoot}/dist/asset-registry.json`);
   });
 
@@ -33,7 +42,7 @@ describe("destaria build command", () => {
     const result = Bun.spawn({
       cmd: [
         "bun",
-        path.join(import.meta.dir, "..", "bin.ts"),
+        path.join(import.meta.dir, "..", "..", "bin.ts"),
         "build",
         "--project",
         projectRoot,

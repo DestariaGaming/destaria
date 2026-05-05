@@ -3,6 +3,7 @@ import { TestHarness } from "cli-forge";
 
 import { createDestariaCli } from "./cli";
 import { defineAsset, entity, Mesh, destaria, version } from "./index";
+import { captureConsole } from "./shared/test/fixtures";
 
 describe("destaria sdk exports", () => {
   it("exports the sdk token and version", () => {
@@ -52,7 +53,7 @@ describe("destaria sdk exports", () => {
 });
 
 describe("destaria cli", () => {
-  it.each(["create", "dev", "build", "package"] as const)("routes %s", async (command) => {
+  it.each(["create", "dev", "build", "list", "package"] as const)("routes %s", async (command) => {
     const harness = new TestHarness(createDestariaCli());
     const { commandChain } = await harness.parse([command]);
 
@@ -60,34 +61,14 @@ describe("destaria cli", () => {
   });
 
   it("prints help with the skeleton commands", async () => {
-    const output = captureConsoleLog(async () => {
+    const output = captureConsole("log", async () => {
       await createDestariaCli().forge(["--help"]);
     });
 
     await expect(output).resolves.toContain("create");
     await expect(output).resolves.toContain("dev");
     await expect(output).resolves.toContain("build");
+    await expect(output).resolves.toContain("list");
     await expect(output).resolves.toContain("package");
   });
 });
-
-async function captureConsoleLog(fn: () => Promise<void>): Promise<string> {
-  const originalConsoleLog = console.log;
-  const lines: string[] = [];
-
-  console.log = (...contents) => {
-    lines.push(
-      contents
-        .map((content) => (typeof content === "string" ? content : JSON.stringify(content)))
-        .join(" "),
-    );
-  };
-
-  try {
-    await fn();
-  } finally {
-    console.log = originalConsoleLog;
-  }
-
-  return lines.join("\n");
-}

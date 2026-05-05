@@ -9,6 +9,7 @@
   "catalog": {
     "@types/bun": "latest",
     "cli-forge": "^1.10.0",
+    "ignore": "^7.0.5",
     "oxfmt": "latest",
     "oxlint": "latest",
     "typescript": "^5",

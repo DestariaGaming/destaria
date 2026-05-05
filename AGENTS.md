@@ -114,6 +114,13 @@ Workspace package scripts:
 - Keep implementation scoped to the package that owns the responsibility.
 - Prefer explicit structured data contracts over ad hoc string formats.
 - Add shared abstractions only after more than one package needs them.
+- Before adding a helper inside the file or feature area where it is first
+  needed, check for existing shared utilities. CLI utilities shared by build,
+  dev, list, package, or validation code belong under `apps/cli/src/shared/`;
+  test-only CLI helpers belong under `apps/cli/src/shared/test/`.
+- Do not place reusable CLI helpers under `apps/cli/src/build/` unless they are
+  genuinely build-only. Build-specific code can depend on `apps/cli/src/shared/`,
+  but shared CLI code should not depend on build internals.
 - Add clear TS/JSDoc comments for public-facing API exports, including exported
   functions, classes, constants, and types that developers consume from package
   entrypoints.

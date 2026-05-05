@@ -1,7 +1,7 @@
 import { pathToFileURL } from "node:url";
 
-import { BuildError } from "./errors";
-import { formatProjectPath } from "./paths";
+import { BuildError } from "../../shared/errors";
+import { formatProjectPath } from "../../shared/paths";
 
 export type LoadedAssetModule = {
   assetFile: string;

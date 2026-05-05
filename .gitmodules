@@ -6,3 +6,7 @@
 	path = .repos/zod
 	url = https://github.com/colinhacks/zod
 	branch = main
+[submodule ".repos/node-ignore"]
+	path = .repos/node-ignore
+	url = https://github.com/kaelzhang/node-ignore
+	branch = master

@@ -28,6 +28,7 @@
     "@destaria/authoring": "workspace:*",
     "@destaria/package-format": "workspace:*",
     "cli-forge": "catalog:",
+    "ignore": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
