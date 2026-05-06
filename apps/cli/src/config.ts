@@ -5,8 +5,15 @@ export type DestariaConfigOutput = {
   dir: string;
 };
 
+export type DestariaConfigSource = {
+  /** Directory where Destaria source modules are discovered, relative to the project root. */
+  root: string;
+};
+
 export type DestariaConfig = {
-  /** Entry scene module path, relative to the project root. */
+  /** Source settings for author-authored game modules. */
+  source?: Partial<DestariaConfigSource>;
+  /** Entry scene module path, relative to source.root. */
   entry: string;
   /** Build output settings for generated package artifacts. */
   output: DestariaConfigOutput;

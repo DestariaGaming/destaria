@@ -21,17 +21,35 @@ Destaria projects define their CLI entrypoint and output settings in
 import { defineConfig } from "destaria";
 
 export default defineConfig({
-  entry: "src/scenes/main.scene.ts",
+  source: {
+    root: "src",
+  },
+  entry: "scenes/main.scene.ts",
   output: {
     dir: "dist",
   },
 });
 ```
 
+`source.root` is optional and defaults to `"src"`. `entry` is resolved relative
+to that source root. The CLI discovers authored modules by suffix under the
+source root, so assets and scenes can be colocated by feature or level:
+
+```txt
+src/
+  levels/
+    boss/
+      boss.asset.ts
+      boss-minion.asset.ts
+      boss.scene.ts
+```
+
 The CLI loads this config once per command invocation and exposes the effective
 project context to build, dev, and package internals. Command-line overrides,
 such as `--project` and `--output`, are merged into that context before
-downstream work reads it.
+downstream work reads it. `destaria list` prints the discovered entry scene,
+scene files, and asset files; pass source types such as `destaria list scenes`
+to narrow the output.
 
 ## Assets
 

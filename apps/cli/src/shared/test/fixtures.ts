@@ -7,12 +7,14 @@ type FixtureProjectOptions = {
   projectName?: string;
 };
 
+let consoleCaptureQueue: Promise<void> = Promise.resolve();
+
 export async function createFixtureProject(
   files: Record<string, string>,
   options: FixtureProjectOptions | string = {},
 ): Promise<string> {
   const projectName = typeof options === "string" ? options : (options.projectName ?? "project-a");
-  const repositoryRoot = path.resolve(import.meta.dir, "..", "..", "..", "..");
+  const repositoryRoot = path.resolve(import.meta.dir, "..", "..", "..", "..", "..");
   const projectRoot = path.join(repositoryRoot, "tmp", projectName);
   const destariaShimRoot = path.join(projectRoot, "node_modules", "destaria");
 
@@ -35,6 +37,11 @@ export async function createFixtureProject(
     );
   }
 
+  if (config === undefined && files["src/scenes/main.scene.ts"] === undefined) {
+    await mkdir(path.join(projectRoot, "src", "scenes"), { recursive: true });
+    await writeFile(path.join(projectRoot, "src", "scenes", "main.scene.ts"), createDefaultScene());
+  }
+
   await Promise.all(
     Object.entries(files).map(async ([filePath, contents]) => {
       const absolutePath = path.join(projectRoot, filePath);
@@ -46,7 +53,17 @@ export async function createFixtureProject(
   return projectRoot;
 }
 
-export function captureConsole(method: "error" | "log", fn: () => Promise<void>): Promise<string> {
+export async function captureConsole(
+  method: "error" | "log",
+  fn: () => Promise<void>,
+): Promise<string> {
+  const previousCapture = consoleCaptureQueue;
+  let releaseCapture!: () => void;
+  consoleCaptureQueue = new Promise((resolve) => {
+    releaseCapture = resolve;
+  });
+  await previousCapture;
+
   const originalMethod = console[method];
   const lines: string[] = [];
 
@@ -58,22 +75,33 @@ export function captureConsole(method: "error" | "log", fn: () => Promise<void>)
     );
   };
 
-  return fn()
-    .then(() => lines.join("\n"))
-    .finally(() => {
-      console[method] = originalMethod;
-    });
+  try {
+    await fn();
+    return lines.join("\n");
+  } finally {
+    console[method] = originalMethod;
+    releaseCapture();
+  }
 }
 
 function createDefaultDestariaConfig(): string {
   return `import { defineConfig } from "destaria";
 
 export default defineConfig({
-  entry: "src/scenes/main.scene.ts",
+  entry: "scenes/main.scene.ts",
   output: {
     dir: "dist",
   },
 });`;
+}
+
+function createDefaultScene(): string {
+  return `import { defineScene } from "destaria";
+
+export const MainScene = defineScene({
+  entities: [],
+});
+`;
 }
 
 function createDefaultDestariaShim(repositoryRoot: string, destariaShimRoot: string): string {

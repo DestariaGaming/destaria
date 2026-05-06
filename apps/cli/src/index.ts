@@ -6,7 +6,12 @@ export const destaria = {
 } as const;
 
 export { defineConfig } from "./config";
-export type { DestariaConfig, DestariaConfigDefinition, DestariaConfigOutput } from "./config";
+export type {
+  DestariaConfig,
+  DestariaConfigDefinition,
+  DestariaConfigOutput,
+  DestariaConfigSource,
+} from "./config";
 export { appendDefault, defineAsset, defineScene, entity, Mesh } from "@destaria/authoring";
 export type { AssetDefinition, CubeMeshOptions, EntityDescriptor } from "@destaria/authoring";
 export type { SceneDefinition, SceneDescriptor, SceneEntityEntry } from "@destaria/authoring";
