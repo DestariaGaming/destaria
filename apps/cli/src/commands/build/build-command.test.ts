@@ -55,6 +55,6 @@ describe("destaria build command", () => {
     const stderr = await new Response(result.stderr).text();
 
     expect(await result.exited).toBe(1);
-    expect(stderr).toContain("Build output must stay inside the project root.");
+    expect(stderr).toContain("Output must stay inside the project root.");
   });
 });

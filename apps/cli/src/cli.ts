@@ -20,7 +20,7 @@ export function createDestariaCli() {
     })
     .option("output", {
       type: "string",
-      description: "Asset registry output path, relative to the project root",
+      description: "Command output path, relative to the project root",
     })
     .option("json", {
       type: "boolean",

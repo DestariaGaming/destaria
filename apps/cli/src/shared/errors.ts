@@ -14,3 +14,10 @@ export class BuildError extends CommandError {
     this.name = "BuildError";
   }
 }
+
+export class PackageError extends CommandError {
+  constructor(message: string, options: { exitCode?: number } = {}) {
+    super(message, options);
+    this.name = "PackageError";
+  }
+}

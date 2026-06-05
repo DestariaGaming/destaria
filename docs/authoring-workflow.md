@@ -238,10 +238,14 @@ TypeScript source
 
 The package must contain everything needed for runtime execution.
 
-The current `destaria build` command writes `dist/asset-registry.json`. It also
-produces validated entry-scene and manifest data in memory and includes them in
-JSON command output. Writing all package artifacts and assembling
-`.destariapkg` is not implemented yet.
+The `destaria build` command writes `dist/asset-registry.json`. It also produces
+validated entry-scene and manifest data in memory and includes them in JSON
+command output.
+
+The `destaria package` command compiles that project data and writes
+`dist/game.destariapkg`, an uncompressed archive containing `manifest.json`,
+`scene.json`, and `asset-registry.json`. The package does not contain or depend
+on the project's TypeScript source.
 
 ## Desktop Execution
 

@@ -3,9 +3,7 @@ import path from "node:path";
 
 import type { AssetRegistry, CompiledSceneGraph, ManifestInput } from "@destaria/package-format";
 
-import { loadAssetModules } from "./asset-loader";
-import { compileProjectModules } from "./project-compiler";
-import { loadSceneModule } from "./scene-loader";
+import { compileProject } from "../../compiler/compile-project";
 import { getProjectContext, loadProjectContext, type ProjectContext } from "../../project/context";
 import {
   discoverSourceRegistry,
@@ -31,9 +29,7 @@ export async function buildProject(options: BuildProjectOptions = {}): Promise<B
   const projectRoot = projectContext.projectRoot;
   const outputFile = projectContext.assetRegistryOutputFile;
   const sourceRegistry = await resolveSourceRegistry(projectContext, options);
-  const assetModules = await loadAssetModules(projectRoot, sourceRegistry.assetFiles);
-  const entrySceneModule = await loadSceneModule(projectRoot, sourceRegistry.entrySceneFile);
-  const compiledProject = compileProjectModules(projectRoot, assetModules, entrySceneModule);
+  const compiledProject = await compileProject(projectContext, sourceRegistry);
 
   await mkdir(path.dirname(outputFile), { recursive: true });
   await Bun.write(outputFile, `${JSON.stringify(compiledProject.assetRegistry, null, 2)}\n`);
