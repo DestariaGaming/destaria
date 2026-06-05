@@ -37,6 +37,11 @@ dist/
   game.destariapkg
 ```
 
+This is the intended packaged output. During the current package-contract
+bootstrap, `destaria build` writes `dist/asset-registry.json` and produces the
+entry scene graph and manifest input as validated in-memory data. `destaria
+package` will assemble those artifacts into `game.destariapkg`.
+
 Architectural decision:
 
 - The CLI is the only component that understands TypeScript source projects.

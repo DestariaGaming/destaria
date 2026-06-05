@@ -51,6 +51,11 @@ downstream work reads it. `destaria list` prints the discovered entry scene,
 scene files, and asset files; pass source types such as `destaria list scenes`
 to narrow the output.
 
+Discovered asset definitions and the entry scene definition must use named
+exports. The entry scene module must export exactly one `defineScene(...)`
+declaration. Other discovered scene files are listed for authoring visibility
+but are not compiled yet.
+
 ## Assets
 
 Assets are reusable definitions of game objects and resources.
@@ -103,8 +108,9 @@ export const Crate = defineAsset<CrateProps>({
 
 `mesh(props)` can produce different package data for different effective entity
 props. Default props are fallback authoring data, not a request to compile every
-possible asset variant. Once scene/entity compilation is in place, the CLI
-should compile asset outputs for referenced entity variants.
+possible asset variant. The CLI compiles only variants referenced by entities in
+the entry scene and reuses one compiled variant when multiple entities have the
+same effective props.
 
 ## Scenes
 
@@ -140,6 +146,11 @@ export const MainScene = defineScene({
 Scene definitions snapshot entity builders with `toDescriptor()` for later CLI
 compilation. They do not resolve asset IDs, evaluate asset meshes,
 serialize package data, or create runtime scene objects.
+
+During build, the CLI snapshots the configured entry scene, resolves each
+entity's asset definition to a discovered named asset export, compiles its
+effective prop variant, and produces a package-format scene graph. Scene IDs are
+generated from the source path and named export.
 
 ## Entities
 
@@ -226,6 +237,11 @@ TypeScript source
 ```
 
 The package must contain everything needed for runtime execution.
+
+The current `destaria build` command writes `dist/asset-registry.json`. It also
+produces validated entry-scene and manifest data in memory and includes them in
+JSON command output. Writing all package artifacts and assembling
+`.destariapkg` is not implemented yet.
 
 ## Desktop Execution
 

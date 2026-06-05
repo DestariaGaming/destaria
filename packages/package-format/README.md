@@ -45,3 +45,55 @@ const mesh = validateMeshDescriptor({
 
 Omitting `size` represents the default cube. Runtime code should read this
 package data and decide how to generate or load renderable geometry.
+
+## Asset Registry
+
+Compiled assets are emitted as referenced variants in a versioned registry:
+
+```ts
+import { validateAssetRegistry } from "@destaria/package-format";
+
+const registry = validateAssetRegistry({
+  version: 1,
+  assets: [
+    {
+      id: "src/assets/crate.asset.ts:Crate#variant-1",
+      mesh: { kind: "primitive", primitive: "cube" },
+    },
+  ],
+});
+```
+
+## Scene Graph
+
+Compiled scene entities reference emitted asset variant IDs and preserve their
+effective JSON-safe props and position transform:
+
+```ts
+import { validateCompiledSceneGraph } from "@destaria/package-format";
+
+const scene = validateCompiledSceneGraph({
+  version: 1,
+  id: "src/scenes/main.scene.ts:MainScene",
+  entities: [
+    {
+      assetId: "src/assets/crate.asset.ts:Crate#variant-1",
+      props: {},
+      transform: { position: { x: 0, y: 0, z: 0 } },
+    },
+  ],
+});
+```
+
+## Manifest Input
+
+The current manifest input identifies the package entry scene:
+
+```ts
+import { validateManifestInput } from "@destaria/package-format";
+
+const manifest = validateManifestInput({
+  version: 1,
+  entrySceneId: "src/scenes/main.scene.ts:MainScene",
+});
+```
