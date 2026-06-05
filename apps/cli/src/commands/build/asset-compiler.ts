@@ -16,7 +16,7 @@ type LoadedAssetModule = {
   moduleExports: Record<string, unknown>;
 };
 
-type AssetDeclaration = {
+export type AssetDeclaration = {
   assetDefinition: AssetDefinition<JsonObject>;
   assetFile: string;
   exportName: string;
@@ -47,7 +47,7 @@ export function compileAssetModules(
   return assets.toSorted((left, right) => left.id.localeCompare(right.id));
 }
 
-function collectAssetDeclarations(
+export function collectAssetDeclarations(
   projectRoot: string,
   assetModules: LoadedAssetModule[],
 ): AssetDeclaration[] {
@@ -79,16 +79,21 @@ function collectAssetDeclarations(
   return declarations;
 }
 
-function compileAsset(projectRoot: string, declaration: AssetDeclaration): CompiledAsset {
+export function compileAssetVariant(
+  projectRoot: string,
+  declaration: AssetDeclaration,
+  props: JsonObject,
+  variantId: string,
+): CompiledAsset {
   const { assetDefinition, assetFile, id } = declaration;
 
   try {
-    validateJsonValue(assetDefinition.defaultProps, "defaultProps");
+    validateJsonValue(props, "props");
   } catch (error) {
     if (error instanceof TypeError) {
       const invalidPath = error.message.replace(/ must be JSON-safe\.$/, "");
       throw new BuildError(
-        `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} has non-JSON default props at ${invalidPath}.`,
+        `Asset "${id}" from ${formatProjectPath(projectRoot, assetFile)} has non-JSON entity props at ${invalidPath}.`,
       );
     }
 
@@ -97,7 +102,7 @@ function compileAsset(projectRoot: string, declaration: AssetDeclaration): Compi
 
   let meshDescriptor: unknown;
   try {
-    meshDescriptor = assetDefinition.mesh(assetDefinition.defaultProps);
+    meshDescriptor = assetDefinition.mesh(props);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new BuildError(
@@ -107,7 +112,7 @@ function compileAsset(projectRoot: string, declaration: AssetDeclaration): Compi
 
   try {
     return {
-      id,
+      id: variantId,
       mesh: validateMeshDescriptor(meshDescriptor),
     };
   } catch (error) {
@@ -119,6 +124,25 @@ function compileAsset(projectRoot: string, declaration: AssetDeclaration): Compi
 
     throw error;
   }
+}
+
+function compileAsset(projectRoot: string, declaration: AssetDeclaration): CompiledAsset {
+  const { assetDefinition, id } = declaration;
+
+  try {
+    validateJsonValue(assetDefinition.defaultProps, "defaultProps");
+  } catch (error) {
+    if (error instanceof TypeError) {
+      const invalidPath = error.message.replace(/ must be JSON-safe\.$/, "");
+      throw new BuildError(
+        `Asset "${id}" from ${formatProjectPath(projectRoot, declaration.assetFile)} has non-JSON default props at ${invalidPath}.`,
+      );
+    }
+
+    throw error;
+  }
+
+  return compileAssetVariant(projectRoot, declaration, assetDefinition.defaultProps, id);
 }
 
 function createAssetId(projectRoot: string, assetFile: string, exportName: string): string {

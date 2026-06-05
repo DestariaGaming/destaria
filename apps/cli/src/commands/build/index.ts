@@ -7,8 +7,11 @@ export const buildCommand = {
     const output = await getOutput();
     const result = await buildProject();
 
-    return output
-      .success(`Wrote ${result.outputFile}`)
-      .json({ outputFile: result.outputFile, registry: result.registry });
+    return output.success(`Wrote ${result.outputFile}`).json({
+      outputFile: result.outputFile,
+      assetRegistry: result.assetRegistry,
+      sceneGraph: result.sceneGraph,
+      manifestInput: result.manifestInput,
+    });
   }),
 };
