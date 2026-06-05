@@ -1,10 +1,11 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-import { type AssetRegistry, validateAssetRegistry } from "@destaria/package-format";
+import type { AssetRegistry, CompiledSceneGraph, ManifestInput } from "@destaria/package-format";
 
-import { compileAssetModules } from "./asset-compiler";
 import { loadAssetModules } from "./asset-loader";
+import { compileProjectModules } from "./project-compiler";
+import { loadSceneModule } from "./scene-loader";
 import { getProjectContext, loadProjectContext, type ProjectContext } from "../../project/context";
 import {
   discoverSourceRegistry,
@@ -20,7 +21,9 @@ export type BuildProjectOptions = {
 export type BuildProjectResult = {
   projectRoot: string;
   outputFile: string;
-  registry: AssetRegistry;
+  assetRegistry: AssetRegistry;
+  sceneGraph: CompiledSceneGraph;
+  manifestInput: ManifestInput;
 };
 
 export async function buildProject(options: BuildProjectOptions = {}): Promise<BuildProjectResult> {
@@ -29,16 +32,16 @@ export async function buildProject(options: BuildProjectOptions = {}): Promise<B
   const outputFile = projectContext.assetRegistryOutputFile;
   const sourceRegistry = await resolveSourceRegistry(projectContext, options);
   const assetModules = await loadAssetModules(projectRoot, sourceRegistry.assetFiles);
-  const assets = compileAssetModules(projectRoot, assetModules);
-  const registry = validateAssetRegistry({ version: 1, assets });
+  const entrySceneModule = await loadSceneModule(projectRoot, sourceRegistry.entrySceneFile);
+  const compiledProject = compileProjectModules(projectRoot, assetModules, entrySceneModule);
 
   await mkdir(path.dirname(outputFile), { recursive: true });
-  await Bun.write(outputFile, `${JSON.stringify(registry, null, 2)}\n`);
+  await Bun.write(outputFile, `${JSON.stringify(compiledProject.assetRegistry, null, 2)}\n`);
 
   return {
     projectRoot,
     outputFile,
-    registry,
+    ...compiledProject,
   };
 }
 

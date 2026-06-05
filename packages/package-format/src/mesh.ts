@@ -4,7 +4,7 @@ export const CubeMeshDescriptorSchema = z
   .object({
     kind: z.literal("primitive"),
     primitive: z.literal("cube"),
-    size: z.number().positive().finite().optional(),
+    size: z.number().positive().optional(),
   })
   .strict();
 

@@ -8,5 +8,9 @@ export {
   JsonValueSchema,
   validateJsonValue,
 } from "./json";
+export type { ManifestInput } from "./manifest";
+export { validateManifestInput } from "./manifest";
 export type { CubeMeshDescriptor, MeshDescriptor, PrimitiveMeshDescriptor } from "./mesh";
 export { validateMeshDescriptor } from "./mesh";
+export type { CompiledSceneEntity, CompiledSceneGraph } from "./scene";
+export { validateCompiledSceneEntity, validateCompiledSceneGraph } from "./scene";
