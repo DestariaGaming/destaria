@@ -12,18 +12,19 @@ This package is the strict contract between CLI, Runtime, and Launcher.
 
 ```txt
 manifest.json
-scene.json
 asset-registry.json
 game.bundle.js
 
+scenes/
 assets/
 meshes/
 textures/
 audio/
 ```
 
-The exact schema will evolve, but the boundary should remain stable: packaged
-games are structured data plus script bundles and binary assets.
+The exact packaged layout is not implemented yet and may evolve, but the
+boundary should remain stable: packaged games are structured data plus script
+bundles and binary assets.
 
 ## Design Rules
 
@@ -89,7 +90,7 @@ It contains compiled, serializable asset metadata:
   "version": 1,
   "assets": [
     {
-      "id": "src/assets/crate.asset.ts:Crate",
+      "id": "src/assets/crate.asset.ts:Crate#variant-1",
       "mesh": {
         "kind": "primitive",
         "primitive": "cube"
@@ -99,16 +100,77 @@ It contains compiled, serializable asset metadata:
 }
 ```
 
-Asset IDs are generated deterministically from the source path and named asset
-export. Treat them as opaque runtime references once emitted; moving asset files
-or renaming asset exports changes generated IDs. The registry stores
-package-format data only; it does not reference TypeScript source at runtime.
+Source asset IDs are generated deterministically from the source path and named
+asset export. Moving asset files or renaming asset exports changes those IDs.
+The registry stores package-format data only; it does not reference TypeScript
+source at runtime.
 
 For prop-based authored assets, `mesh(props)` may produce different package data
-for different entity placements. The current default-props asset registry output
-is an early build proof; the compiler should eventually emit package-ready
-asset metadata for referenced scene/entity variants rather than every discovered
-source asset definition or every possible prop branch.
+for different entity placements. The compiler emits only variants referenced by
+the entry scene and reuses variants with identical effective props. Current
+variant IDs append a build-local suffix such as `#variant-1` to the source asset
+ID. Treat the full emitted ID as opaque because the suffix strategy may change.
+
+## Scene Graph
+
+The CLI compiles the configured entry scene into a validated scene graph:
+
+```json
+{
+  "version": 1,
+  "id": "src/scenes/main.scene.ts:MainScene",
+  "entities": [
+    {
+      "assetId": "src/assets/crate.asset.ts:Crate#variant-1",
+      "props": {
+        "size": "large"
+      },
+      "transform": {
+        "position": {
+          "x": 1,
+          "y": 2,
+          "z": 3
+        }
+      }
+    }
+  ]
+}
+```
+
+Scene IDs are generated from the source path and named scene export. Entity
+asset references point to compiled asset variants, while `props` preserves the
+effective JSON-safe entity configuration used to compile that variant.
+
+The package-format module exports `validateCompiledSceneEntity(value)` and
+`validateCompiledSceneGraph(value)`.
+
+## Manifest Input
+
+The current manifest input identifies the entry scene:
+
+```json
+{
+  "version": 1,
+  "entrySceneId": "src/scenes/main.scene.ts:MainScene"
+}
+```
+
+The package-format module exports `validateManifestInput(value)`. This is the
+validated input for future package assembly, not a complete runtime
+compatibility manifest yet.
+
+## Current Build Output
+
+`destaria build` currently writes only:
+
+```txt
+dist/
+  asset-registry.json
+```
+
+The build also produces the compiled entry scene graph and manifest input as
+validated in-memory data and exposes them in JSON command output. Writing scene
+and manifest files and assembling `.destariapkg` remain package-command work.
 
 ## Component Contract
 
@@ -127,9 +189,9 @@ package format should express that information directly.
 These details still need to be specified:
 
 - whether `.destariapkg` is a directory, archive, or both during development
-- manifest schema
-- scene graph schema
-- asset registry schema
+- final manifest schema and runtime compatibility fields
+- packaged scene layout and support for scenes beyond the entry scene
+- stability requirements for generated scene and asset variant IDs
 - script API surface and permissions
 - runtime version compatibility rules
 - asset hashing and deduplication strategy
