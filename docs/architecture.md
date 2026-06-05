@@ -37,10 +37,10 @@ dist/
   game.destariapkg
 ```
 
-This is the intended packaged output. During the current package-contract
-bootstrap, `destaria build` writes `dist/asset-registry.json` and produces the
-entry scene graph and manifest input as validated in-memory data. `destaria
-package` will assemble those artifacts into `game.destariapkg`.
+This is the packaged output. `destaria build` writes
+`dist/asset-registry.json` and produces the entry scene graph and manifest input
+as validated in-memory data. `destaria package` compiles the same project data
+and assembles it into an uncompressed tar archive named `game.destariapkg`.
 
 Architectural decision:
 

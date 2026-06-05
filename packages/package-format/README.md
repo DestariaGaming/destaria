@@ -85,15 +85,33 @@ const scene = validateCompiledSceneGraph({
 });
 ```
 
-## Manifest Input
+## Package Manifest
 
-The current manifest input identifies the package entry scene:
+The initial package manifest identifies the package entry scene:
 
 ```ts
-import { validateManifestInput } from "@destaria/package-format";
+import { validatePackageManifest } from "@destaria/package-format";
 
-const manifest = validateManifestInput({
+const manifest = validatePackageManifest({
   version: 1,
   entrySceneId: "src/scenes/main.scene.ts:MainScene",
+});
+```
+
+## Complete Package
+
+The initial `.destariapkg` container is an uncompressed archive containing
+`manifest.json`, `scene.json`, and `asset-registry.json`.
+
+`validatePackageContents(value)` validates each file and checks the references
+between them:
+
+```ts
+import { validatePackageContents } from "@destaria/package-format";
+
+const contents = validatePackageContents({
+  manifest,
+  scene,
+  assetRegistry,
 });
 ```

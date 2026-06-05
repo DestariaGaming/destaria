@@ -36,6 +36,7 @@ describe("project context", () => {
       entryScene: path.join(projectRoot, "src/scenes/intro.scene.ts"),
       outputDir: path.join(projectRoot, "build"),
       assetRegistryOutputFile: path.join(projectRoot, "build/asset-registry.json"),
+      packageOutputFile: path.join(projectRoot, "build/game.destariapkg"),
     });
   });
 
@@ -112,6 +113,7 @@ describe("project context", () => {
       }),
     ).resolves.toMatchObject({
       assetRegistryOutputFile: path.join(projectRoot, "tmp/registry.json"),
+      packageOutputFile: path.join(projectRoot, "tmp/registry.json"),
     });
   });
 

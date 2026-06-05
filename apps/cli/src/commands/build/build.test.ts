@@ -581,14 +581,14 @@ describe("destaria build", () => {
 
     await expect(
       buildProject({ projectRoot, outputFile: path.join(projectRoot, "dist", "registry.json") }),
-    ).rejects.toThrow("Build output must be relative to the project root.");
+    ).rejects.toThrow("Output must be relative to the project root.");
   });
 
   it("rejects output paths outside the project root", async () => {
     const projectRoot = await createFixtureProject({}, "project-escaping-output");
 
     await expect(buildProject({ projectRoot, outputFile: "../registry.json" })).rejects.toThrow(
-      "Build output must stay inside the project root.",
+      "Output must stay inside the project root.",
     );
   });
 

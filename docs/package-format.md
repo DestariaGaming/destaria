@@ -8,23 +8,23 @@ Destaria games are distributed as:
 
 This package is the strict contract between CLI, Runtime, and Launcher.
 
-## Baseline Structure
+## Initial Container
 
 ```txt
-manifest.json
-asset-registry.json
-game.bundle.js
-
-scenes/
-assets/
-meshes/
-textures/
-audio/
+game.destariapkg
+  manifest.json
+  scene.json
+  asset-registry.json
 ```
 
-The exact packaged layout is not implemented yet and may evolve, but the
-boundary should remain stable: packaged games are structured data plus script
-bundles and binary assets.
+The initial `.destariapkg` format is a single uncompressed tar archive. The CLI
+uses Bun's native archive support to write it. Compression, script bundles, and
+binary asset packing are future additions.
+
+The package-format module exports `validatePackageContents(value)` to validate
+the three structured files and their cross-file references. It verifies that
+the manifest references the packaged scene, asset IDs are unique, and scene
+entities reference packaged assets.
 
 ## Design Rules
 
@@ -144,9 +144,9 @@ effective JSON-safe entity configuration used to compile that variant.
 The package-format module exports `validateCompiledSceneEntity(value)` and
 `validateCompiledSceneGraph(value)`.
 
-## Manifest Input
+## Package Manifest
 
-The current manifest input identifies the entry scene:
+The initial package manifest identifies the entry scene:
 
 ```json
 {
@@ -155,13 +155,13 @@ The current manifest input identifies the entry scene:
 }
 ```
 
-The package-format module exports `validateManifestInput(value)`. This is the
-validated input for future package assembly, not a complete runtime
-compatibility manifest yet.
+The package-format module exports `validatePackageManifest(value)`. The compiler
+also exposes the same initial shape as `ManifestInput` before package assembly.
+Runtime compatibility fields will be added as the format evolves.
 
-## Current Build Output
+## Build And Package Output
 
-`destaria build` currently writes only:
+`destaria build` writes the loose build artifact:
 
 ```txt
 dist/
@@ -169,8 +169,17 @@ dist/
 ```
 
 The build also produces the compiled entry scene graph and manifest input as
-validated in-memory data and exposes them in JSON command output. Writing scene
-and manifest files and assembling `.destariapkg` remain package-command work.
+validated in-memory data and exposes them in JSON command output.
+
+`destaria package` compiles the project and writes:
+
+```txt
+dist/
+  game.destariapkg
+```
+
+The package contains `manifest.json`, `scene.json`, and `asset-registry.json`.
+It contains package-format data only and does not include TypeScript source.
 
 ## Component Contract
 
@@ -188,7 +197,6 @@ package format should express that information directly.
 
 These details still need to be specified:
 
-- whether `.destariapkg` is a directory, archive, or both during development
 - final manifest schema and runtime compatibility fields
 - packaged scene layout and support for scenes beyond the entry scene
 - stability requirements for generated scene and asset variant IDs

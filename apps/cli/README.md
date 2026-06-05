@@ -24,6 +24,7 @@ src/
   bin.ts              # executable CLI entrypoint
   cli.ts              # command registration
   index.ts            # public SDK exports
+  compiler/            # shared source-to-package-data compilation
   commands/           # build/dev/list/package/create commands
   project/            # project config context and source discovery
   shared/             # shared output, paths, errors, and test helpers
@@ -35,10 +36,14 @@ under that root, which supports colocated layouts like
 `src/levels/boss/boss.scene.ts`. Use `destaria list`, `destaria list scenes`, or
 `destaria list assets --json` to inspect the files the CLI discovers.
 
-`destaria build` currently compiles the configured entry scene and its
-referenced asset variants. It writes `dist/asset-registry.json`; the validated
-scene graph and manifest input are available in JSON command output while full
-package assembly remains unimplemented.
+`destaria build` compiles the configured entry scene and its referenced asset
+variants. It writes `dist/asset-registry.json`; the validated scene graph and
+manifest input are available in JSON command output.
+
+`destaria package` compiles the same project data and writes
+`dist/game.destariapkg`, an uncompressed archive containing the manifest, entry
+scene, and asset registry. Use `--output releases/demo.destariapkg` to override
+the package path inside the project.
 
 ## Scripts
 

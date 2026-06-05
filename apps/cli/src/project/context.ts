@@ -24,6 +24,7 @@ export type ProjectContext = {
   entryScene: string;
   outputDir: string;
   assetRegistryOutputFile: string;
+  packageOutputFile: string;
 };
 
 type ProjectContextProvider = {
@@ -64,7 +65,11 @@ export async function loadProjectContext(
   const assetRegistryOutputFile =
     options.outputFile === undefined
       ? path.join(outputDir, "asset-registry.json")
-      : resolveProjectRelativePath(projectRoot, options.outputFile, "Build output");
+      : resolveProjectRelativePath(projectRoot, options.outputFile, "Output");
+  const packageOutputFile =
+    options.outputFile === undefined
+      ? path.join(outputDir, "game.destariapkg")
+      : resolveProjectRelativePath(projectRoot, options.outputFile, "Output");
 
   return {
     projectRoot,
@@ -74,6 +79,7 @@ export async function loadProjectContext(
     entryScene,
     outputDir,
     assetRegistryOutputFile,
+    packageOutputFile,
   };
 }
 

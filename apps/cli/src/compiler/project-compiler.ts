@@ -24,8 +24,8 @@ import {
 } from "./asset-compiler";
 import type { LoadedAssetModule } from "./asset-loader";
 import type { LoadedSceneModule } from "./scene-loader";
-import { BuildError } from "../../shared/errors";
-import { formatProjectPath } from "../../shared/paths";
+import { BuildError } from "../shared/errors";
+import { formatProjectPath } from "../shared/paths";
 
 export type CompiledProject = {
   assetRegistry: AssetRegistry;

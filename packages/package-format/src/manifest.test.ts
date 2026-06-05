@@ -1,12 +1,24 @@
 import { describe, expect, it } from "bun:test";
 import { z } from "zod";
 
-import { validateManifestInput } from "./manifest";
+import { validateManifestInput, validatePackageManifest } from "./manifest";
 
 describe("manifest package format", () => {
   it("accepts manifest input data", () => {
     expect(
       validateManifestInput({
+        version: 1,
+        entrySceneId: "src/scenes/main.scene.ts:MainScene",
+      }),
+    ).toEqual({
+      version: 1,
+      entrySceneId: "src/scenes/main.scene.ts:MainScene",
+    });
+  });
+
+  it("accepts a package manifest", () => {
+    expect(
+      validatePackageManifest({
         version: 1,
         entrySceneId: "src/scenes/main.scene.ts:MainScene",
       }),
